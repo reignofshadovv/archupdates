@@ -1,6 +1,6 @@
 # Maintainer: Your Name <you@example.com>
 pkgname=archupdates
-pkgver=1.0
+pkgver=1.1
 pkgrel=1
 pkgdesc="Arch Linux update script with user-level systemd service, timer, and a Check Updates desktop entry"
 arch=('any')
