@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Run checkupdates and capture the output for system updates
+system_updates=$(checkupdates 2>/dev/null)
+num_system_updates=$(echo "$system_updates" | grep -v '^$' | wc -l)
+
+# Run yay -Qua to check for AUR package updates
+aur_updates=$(yay -Qua 2>/dev/null)
+num_aur_updates=$(echo "$aur_updates" | grep -v '^$' | wc -l)
+
+# Run flatpak remote-ls --updates for Flatpak updates
+flatpak_updates=$(flatpak remote-ls --updates flathub 2>/dev/null)
+num_flatpak_updates=$(echo "$flatpak_updates" | grep -v '^$' | wc -l)
+
+# Check if there are any updates
+if (( num_system_updates > 0 || num_aur_updates > 0 || num_flatpak_updates > 0 )); then
+    # Build the summary string
+    summary=""
+    [[ $num_system_updates -gt 0 ]] && summary+="$num_system_updates sistem "
+    [[ $num_aur_updates -gt 0 ]] && summary+="$num_aur_updates AUR "
+    [[ $num_flatpak_updates -gt 0 ]] && summary+="$num_flatpak_updates Flatpak "
+    summary+="güncellemesi var."
+
+    # Build the message body
+    message=""
+    if (( num_system_updates > 0 )); then
+        message+="Sistem güncellemeleri:\n$system_updates\n\n"
+    fi
+    if (( num_aur_updates > 0 )); then
+        message+="AUR güncellemeleri:\n$aur_updates\n\n"
+    fi
+    if (( num_flatpak_updates > 0 )); then
+        message+="Flatpak güncellemeleri:\n$flatpak_updates"
+    fi
+
+    # If dunstify is available, use it to add an action to the notification
+    if command -v dunstify >/dev/null 2>&1; then
+        # Interactive notification with action to update
+        action=$(dunstify -t 10000 -A "update,Run Updates" -h "string:desktop-entry:org.kde.konsole" -a "Güncellemeler Mevcut" "$summary" "$message")
+        if [[ "$action" == "update" ]]; then
+            # Open Konsole and run updates. The read command keeps the window open until a key is pressed.
+            konsole -e bash -c "yay -SyuN --answerupgrade ' ' && yay -Syua --noconfirm && flatpak update -y; read -p 'Press any key to exit...'"
+        fi
+        # Also send a non-interactive copy for the notification history/tray
+        notify-send -t 1 -h "string:desktop-entry:org.kde.konsole" -a "Güncellemeler Mevcut" "$summary" "$message"
+    else
+        # Fallback: send a standard notification without a clickable action
+        notify-send -h "string:desktop-entry:org.kde.konsole" -a "Güncellemeler Mevcut" "$summary" "$message"
+    fi
+else
+    # Send notification if no updates are available
+    notify-send -a "Sisteminiz Güncel" "Hiçbir güncelleme yok."
+fi
