@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Check Updates
+Comment=Run Arch Linux system update
+Exec=/usr/bin/archupdates
+Icon=system-run
+Terminal=true
+Categories=Utility;
