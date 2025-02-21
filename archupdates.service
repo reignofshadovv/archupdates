@@ -1,0 +1,7 @@
+[Unit]
+Description=Run Arch Linux updates as a user service
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/archupdates
