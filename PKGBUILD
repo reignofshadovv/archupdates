@@ -1,6 +1,6 @@
 # Maintainer: https://github.com/reignofshadovv
 pkgname=archupdates
-pkgver=1.0
+pkgver=1.2
 pkgrel=1
 pkgdesc="Arch Linux update script with user-level systemd service, timer, and a Check Updates desktop entry"
 arch=('any')
